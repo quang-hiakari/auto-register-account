@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c:*)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(playwright install:*)",
+      "Bash(python -m playwright:*)",
+      "Bash(python main.py:*)"
+    ]
+  }
+}

@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auto Account Registration — Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Target registration page URL
+url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/customer/account/login?lang=default"
+
+# Browser settings
+browser: chromium       # chromium | firefox | webkit
+headless: false         # true = no visible window
+slow_mo: 50             # ms to slow down each action (helps avoid bot detection)
+
+# Timing
+delay_between_accounts: 3   # seconds to wait between registrations
+field_delay: 0.3             # seconds to wait between filling each field
+
+# CSV file containing account data
+csv_file: "accounts.csv"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Form fields
+# Each entry maps a CSV column → a CSS selector on the page
+# Supported types: text | email | password | select | checkbox
+# ─────────────────────────────────────────────────────────────────────────────
+cookie_selector: "button:has-text('Accept')"
+
+fields:
+  - column: first_name          # column header in accounts.csv
+    selector: "[name='dwfrm_profile_customer_firstname']"
+    type: text
+
+  - column: last_name
+    selector: "[name='dwfrm_profile_customer_lastname']"
+    type: text
+
+  - column: email
+    selector: "[name='dwfrm_profile_customer_email']"
+    type: email
+
+  - column: password
+    selector: "[name='dwfrm_profile_login_password']"
+    type: password
+
+# CSS selector for the submit / register button
+submit_selector: "#registration"
+
+# Terms of Service step shown after submitting the registration form
+terms:
+  checkbox_selector: "#is-agree"
+  submit_selector: "#submitbtn"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Success detection  (optional — use one or both)
+# ─────────────────────────────────────────────────────────────────────────────
+success:
+  url_contains: "/account"         # page URL must contain this string after submit
+  # selector: ".success-message"   # or wait for this element to appear
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output
+# ─────────────────────────────────────────────────────────────────────────────
+results_file: "results.csv"          # registration results are written here
+screenshots_on_failure: true         # save a screenshot when a registration fails
+screenshots_dir: "screenshots"       # folder for failure screenshots
