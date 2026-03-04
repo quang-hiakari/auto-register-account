@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auto Address Registration — Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# URLs
+login_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/customer/account/login?lang=default"
+address_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/customer/address?lang=default&rurl=9"
+product_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/product-instock.html?lang=default"
+nodeposit_product_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/nodeposit-instock.html?lang=default"
+cart_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/checkout/cart?lang=default"
+checkout_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/checkout"
+
+# CSV file containing accounts to process
+csv_file: "accounts_with_billing.csv"
+
+# Shared password for all accounts
+password: "Quang@1234"
+
+# Browser settings
+headless: false         # false = visible window (easier to debug)
+slow_mo: 0             # ms delay between actions
+
+# Timing
+wait_timeout: 15            # seconds to wait for elements
+delay_between_accounts: 1   # seconds between accounts
+
+# Address form values
+address:
+  first_name: "Quang"
+  last_name: "Nguyen"
+  street: "5905 Boundary place"
+  city: "New York"
+  zip: "10001"
+  country: "US"
+  state: "NY"
+  # telephone: random 9-digit number generated at runtime
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output
+# ─────────────────────────────────────────────────────────────────────────────
+results_file: "results.csv"

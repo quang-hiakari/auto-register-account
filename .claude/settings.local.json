@@ -6,7 +6,10 @@
       "Bash(pip install:*)",
       "Bash(playwright install:*)",
       "Bash(python -m playwright:*)",
-      "Bash(python main.py:*)"
+      "Bash(python main.py:*)",
+      "Bash(pip:*)",
+      "Bash(python export_accounts.py:*)",
+      "Bash(python:*)"
     ]
   }
 }
