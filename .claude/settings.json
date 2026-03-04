@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv:*)",
+      "Bash(python link_paypal/link_paypal.py:*)",
+      "Bash(python -:*)",
+      "Bash(python parse_preactive_list.py)"
+    ]
+  }
+}

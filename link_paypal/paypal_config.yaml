@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auto PayPal Linker — Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 2: URL of the PayPal linking page on the site
+paypal_link_url: "https://bjfl-003.dx.commercecloud.salesforce.com/s/Prime1StudioEc/customer/paypal?lang=default&rurl=8"
+
+# Step 4: PayPal login credentials (shared across all accounts)
+paypal:
+  email: "nguyen.minhquang@f.flect.co.jp"
+  password: "Mikagami2201"
+
+# CSV file — must contain an "activation_link" column (one link per account)
+csv_file: "preactive_list.csv"
+
+# Browser settings
+browser: chromium       # chromium | firefox | webkit
+headless: false         # false = visible window (easier to debug)
+slow_mo: 50             # ms delay between actions
+
+# Timing
+delay_between_accounts: 1   # seconds between accounts
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Success detection (optional)
+# ─────────────────────────────────────────────────────────────────────────────
+success:
+  url_contains: "/account"   # main page URL must contain this after linking
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output
+# ─────────────────────────────────────────────────────────────────────────────
+results_file: "paypal_results.csv"

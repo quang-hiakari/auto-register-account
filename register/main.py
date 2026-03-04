@@ -9,6 +9,7 @@ Usage:
     python main.py my_config.yaml
 """
 
+import argparse
 import asyncio
 import csv
 import logging
@@ -19,6 +20,10 @@ from datetime import datetime
 
 import yaml
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+
+# Resolve all relative paths from this script's folder, regardless of cwd
+_LAUNCH_CWD = os.getcwd()
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 # ─── Logging setup ────────────────────────────────────────────────────────────
@@ -53,6 +58,14 @@ def save_results(results: list[dict], path: str) -> None:
         writer = csv.DictWriter(f, fieldnames=results[0].keys())
         writer.writeheader()
         writer.writerows(results)
+
+
+def write_accounts(csv_path: str, fields: list[str], accounts: list[dict]) -> None:
+    """Rewrite the accounts CSV with remaining (unprocessed) rows."""
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(accounts)
 
 
 # ─── Field filling ────────────────────────────────────────────────────────────
@@ -185,11 +198,16 @@ async def register_account(page, config: dict, account: dict, index: int) -> dic
 
 # ─── Main runner ─────────────────────────────────────────────────────────────
 
-async def run(config_path: str = "config.yaml") -> None:
+async def run(config_path: str = "config.yaml", limit: int = None) -> None:
     config = load_config(config_path)
     accounts = load_accounts(config["csv_file"])
+    csv_file = config["csv_file"]
+    csv_fields = list(accounts[0].keys()) if accounts else []
 
-    log.info(f"Loaded {len(accounts)} account(s) from '{config['csv_file']}'")
+    process_count = min(limit, len(accounts)) if limit else len(accounts)
+    log.info(f"Loaded {len(accounts)} account(s) from '{csv_file}'")
+    if limit:
+        log.info(f"Limit set — will process {process_count} account(s)")
     log.info(f"Target URL: {config['url']}")
 
     browser_name = config.get("browser", "chromium")
@@ -197,6 +215,7 @@ async def run(config_path: str = "config.yaml") -> None:
     slow_mo = config.get("slow_mo", 50)
     delay = config.get("delay_between_accounts", 3)
 
+    results_file = config.get("results_file", "results.csv")
     results: list[dict] = []
 
     async with async_playwright() as pw:
@@ -212,29 +231,43 @@ async def run(config_path: str = "config.yaml") -> None:
             ),
         )
 
-        for i, account in enumerate(accounts, start=1):
+        for i in range(process_count):
+            account = accounts[0]  # always process the first remaining row
             page = await context.new_page()
-            result = await register_account(page, config, account, i)
+            result = await register_account(page, config, account, i + 1)
             results.append(result)
             await page.close()
 
-            if i < len(accounts):
+            # Remove processed row from CSV immediately
+            accounts.pop(0)
+            write_accounts(csv_file, csv_fields, accounts)
+
+            if i < process_count - 1:
                 log.info(f"Waiting {delay}s before next account…")
                 await asyncio.sleep(delay)
 
         await browser.close()
 
-    results_file = config.get("results_file", "results.csv")
     save_results(results, results_file)
 
     success_count = sum(1 for r in results if r["status"] == "success")
-    log.info("─" * 60)
-    log.info(f"Done. {success_count}/{len(results)} account(s) registered successfully.")
-    log.info(f"Results saved → {results_file}")
+    log.info("-" * 60)
+    log.info(f"Done. {success_count}/{process_count} account(s) registered successfully.")
+    log.info(f"Results saved -> {results_file}")
+    log.info(f"Remaining in '{csv_file}': {len(accounts)} account(s)")
 
 
 # ─── Entry point ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    cfg = sys.argv[1] if len(sys.argv) > 1 else "config.yaml"
-    asyncio.run(run(cfg))
+    parser = argparse.ArgumentParser(description="Auto Account Registration Tool")
+    parser.add_argument("config", nargs="?", default=None, help="Config YAML path (default: config.yaml)")
+    parser.add_argument("--limit", type=int, default=100, metavar="N", help="Max number of accounts to process (default: 100)")
+    args = parser.parse_args()
+
+    if args.config:
+        cfg = args.config if os.path.isabs(args.config) else os.path.join(_LAUNCH_CWD, args.config)
+    else:
+        cfg = "config.yaml"   # relative to script dir (after chdir)
+
+    asyncio.run(run(cfg, limit=args.limit))
